@@ -2,32 +2,36 @@ package com.example.bitacora_cursos;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.ChildEventListener;
 
 import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
     private EditText txtTema;
     private Spinner spinAreas, spinSecciones;
-    private Button btnRegistrar;
+    private Button btnRegistrar, btnActualizar, btnEliminar;
     private DatabaseReference clasesRef;
-    private ListView listaClases;
-    private Button btnActualizar, btnEliminar;
+    private RecyclerView listaClases;
+    private ClasesAdapter adapter;
     private ArrayList<Clases> clasesList = new ArrayList<>();
-    private ArrayAdapter<String> adapter;
     private Clases claseSeleccionada = null;
 
     @Override
@@ -35,30 +39,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Inicialización de Firebase
         clasesRef = FirebaseDatabase.getInstance().getReference("Clases");
 
+        // Vistas
         txtTema = findViewById(R.id.txttema);
         spinAreas = findViewById(R.id.spinarea);
         spinSecciones = findViewById(R.id.spinseccion);
         btnRegistrar = findViewById(R.id.btnregistrar);
-
-        btnRegistrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                registrarClase();
-            }
-        });
         btnActualizar = findViewById(R.id.btnactualizar);
         btnEliminar = findViewById(R.id.btneliminar);
         listaClases = findViewById(R.id.listaclases);
 
-        leerClases();
+        // Configuración de RecyclerView
+        listaClases.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ClasesAdapter(clasesList, this);
+        listaClases.setAdapter(adapter);
 
-        listaClases.setOnItemClickListener((parent, view, position, id) -> {
-            claseSeleccionada = clasesList.get(position);
-            txtTema.setText(claseSeleccionada.getTema());
-        });
+        // Listener de registro
+        btnRegistrar.setOnClickListener(view -> registrarClase());
 
+        // Listener de actualización
         btnActualizar.setOnClickListener(v -> {
             if (claseSeleccionada != null) {
                 String temaNuevo = txtTema.getText().toString();
@@ -68,6 +69,8 @@ public class MainActivity extends AppCompatActivity {
                 limpiarCampos();
             }
         });
+
+        // Listener de eliminación
         btnEliminar.setOnClickListener(v -> {
             if (claseSeleccionada != null) {
                 clasesRef.child("Lecciones").child(claseSeleccionada.getClaseid()).removeValue();
@@ -75,11 +78,14 @@ public class MainActivity extends AppCompatActivity {
                 limpiarCampos();
             }
         });
+
+        // Leer clases desde Firebase
+        leerClases();
     }
 
+    // Método para registrar una clase
     public void registrarClase() {
-        // Obtener los datos de la UI
-        String claseid = txtTema.getText().toString().trim();  // Usar un ID proporcionado
+        String claseid = txtTema.getText().toString().trim();
         String seccion = spinSecciones.getSelectedItem().toString();
         String area = spinAreas.getSelectedItem().toString();
         String tema = txtTema.getText().toString().trim();
@@ -88,25 +94,44 @@ public class MainActivity extends AppCompatActivity {
             Clases leccion = new Clases(claseid, seccion, area, tema);
             clasesRef.child("Lecciones").child(claseid).setValue(leccion);
             Toast.makeText(this, "Clase registrada", Toast.LENGTH_LONG).show();
-        } else  {
+        } else {
             Toast.makeText(this, "Debe introducir un tema", Toast.LENGTH_LONG).show();
         }
     }
+
+    // Método para leer las clases desde Firebase de manera optimizada
     private void leerClases() {
-        clasesRef.child("Lecciones").addValueEventListener(new ValueEventListener() {
+        clasesRef.child("Lecciones").limitToFirst(50).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                clasesList.clear();
-                ArrayList<String> datos = new ArrayList<>();
+            public void onChildAdded(DataSnapshot snapshot, String previousChildName) {
+                Clases clase = snapshot.getValue(Clases.class);
+                clasesList.add(clase);
+                adapter.notifyItemInserted(clasesList.size() - 1); // Notificar al adaptador de la nueva clase
+            }
 
-                for (DataSnapshot dato : snapshot.getChildren()) {
-                    Clases clase = dato.getValue(Clases.class);
-                    clasesList.add(clase);
-                    datos.add(clase.getTema() + " - " + clase.getSeccion() + " - " + clase.getArea());
+            @Override
+            public void onChildChanged(DataSnapshot snapshot, String previousChildName) {
+                Clases clase = snapshot.getValue(Clases.class);
+                int index = getIndexById(clase.getClaseid());
+                if (index != -1) {
+                    clasesList.set(index, clase);
+                    adapter.notifyItemChanged(index); // Notificar al adaptador de la clase actualizada
                 }
+            }
 
-                adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_list_item_1, datos);
-                listaClases.setAdapter(adapter);
+            @Override
+            public void onChildRemoved(DataSnapshot snapshot) {
+                Clases clase = snapshot.getValue(Clases.class);
+                int index = getIndexById(clase.getClaseid());
+                if (index != -1) {
+                    clasesList.remove(index);
+                    adapter.notifyItemRemoved(index); // Notificar al adaptador de la clase eliminada
+                }
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot snapshot, String previousChildName) {
+                // No implementado
             }
 
             @Override
@@ -115,8 +140,62 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    // Obtener el índice de la clase por su ID
+    private int getIndexById(String claseId) {
+        for (int i = 0; i < clasesList.size(); i++) {
+            if (clasesList.get(i).getClaseid().equals(claseId)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // Limpiar los campos del formulario
     private void limpiarCampos() {
         txtTema.setText("");
         claseSeleccionada = null;
+    }
+
+    // Definir el adaptador del RecyclerView
+    private class ClasesAdapter extends RecyclerView.Adapter<ClasesAdapter.ClasesViewHolder> {
+        private final ArrayList<Clases> clases;
+        private final MainActivity context;
+
+        public ClasesAdapter(ArrayList<Clases> clases, MainActivity context) {
+            this.clases = clases;
+            this.context = context;
+        }
+
+        @Override
+        public ClasesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false);
+            return new ClasesViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(ClasesViewHolder holder, int position) {
+            Clases clase = clases.get(position);
+            holder.textView.setText(clase.getTema() + " - " + clase.getSeccion() + " - " + clase.getArea());
+
+            holder.itemView.setOnClickListener(v -> {
+                claseSeleccionada = clase;
+                txtTema.setText(clase.getTema());
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return clases.size();
+        }
+
+        public class ClasesViewHolder extends RecyclerView.ViewHolder {
+            TextView textView;
+
+            public ClasesViewHolder(View itemView) {
+                super(itemView);
+                textView = itemView.findViewById(android.R.id.text1);
+            }
+        }
     }
 }
