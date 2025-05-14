@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">FireBaseDB</string>
+    <string name="app_seccion">Sección</string>
+    <string name="app_area">Asignatura</string>
+    <string name="app_tema">Escriba el tema</string>
+    <string name="app_reg">Registrar Clase</string>
+    <string-array name="secciones">
+        <item>Ing. Sistemas</item>
+        <item>Ing. Software</item>
+        <item>Sist. Información</item>
+    </string-array>
+    <string-array name="asignaturas">
+        <item>Inteligencia Artificial</item>
+        <item>Business Intelligence</item>
+        <item>Tecnologías Móviles</item>
+    </string-array>
+</resources>

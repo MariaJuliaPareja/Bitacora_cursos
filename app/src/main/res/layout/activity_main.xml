@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- Etiqueta para sección -->
+    <TextView
+        android:id="@+id/app_seccion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_seccion"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp" />
+
+    <!-- Spinner para sección -->
+    <Spinner
+        android:id="@+id/spinseccion"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:entries="@array/secciones"
+        app:layout_constraintStart_toEndOf="@id/app_seccion"
+        app:layout_constraintTop_toTopOf="@id/app_seccion"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="24dp" />
+
+    <!-- Etiqueta para área -->
+    <TextView
+        android:id="@+id/app_area"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_area"
+        app:layout_constraintTop_toBottomOf="@id/app_seccion"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp" />
+
+    <!-- Spinner para área -->
+    <Spinner
+        android:id="@+id/spinarea"
+        android:layout_width="209dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="24dp"
+        android:entries="@array/asignaturas"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/app_area"
+        app:layout_constraintTop_toTopOf="@id/app_area" />
+
+    <!-- Campo de texto para tema -->
+    <EditText
+        android:id="@+id/txttema"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="@string/app_tema"
+        android:inputType="text"
+        app:layout_constraintTop_toBottomOf="@id/app_area"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp" />
+
+    <!-- Botón para registrar -->
+    <Button
+        android:id="@+id/btnregistrar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/app_reg"
+        app:layout_constraintTop_toBottomOf="@id/txttema"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- ListView para mostrar clases -->
+    <ListView
+        android:id="@+id/listaclases"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/btnregistrar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnactualizar"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
+
+    <!-- Botón actualizar -->
+    <Button
+        android:id="@+id/btnactualizar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Actualizar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/listaclases"
+        app:layout_constraintEnd_toStartOf="@+id/btneliminar"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <!-- Botón eliminar -->
+    <Button
+        android:id="@+id/btneliminar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Eliminar"
+        app:layout_constraintTop_toTopOf="@id/btnactualizar"
+        app:layout_constraintStart_toEndOf="@id/btnactualizar"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="24dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

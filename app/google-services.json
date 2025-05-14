@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "194557551565",
+    "firebase_url": "https://repositoriomp-default-rtdb.firebaseio.com",
+    "project_id": "repositoriomp",
+    "storage_bucket": "repositoriomp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194557551565:android:afb811f1ae47d41d135a84",
+        "android_client_info": {
+          "package_name": "com.example.bitacora_cursos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJEkVAO4GdcZAhHSKMWiOFitYLsdL1Ifw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
